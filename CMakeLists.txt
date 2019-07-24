@@ -13,8 +13,8 @@ if (CMAKE_BUILD_TYPE STREQUAL debug)
     add_definitions(-D_DEBUG)
 endif ()
 SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb ")
-#SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall ")
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -W ")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall ")
+#SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -W ")
 
 # 设置版本号
 #set (LIBQEVENT_VERSION_MAJOR 1)
@@ -30,8 +30,11 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -W ")
 # 添加 src 目录
 add_subdirectory (src) 
 
+aux_source_directory(src SRC_LIST) 
+
 # 设置可执行文件
-#add_executable(naiveproxy main.c)
+#add_executable(naiveproxy src/main.c)
+add_executable(naiveproxy ${SRC_LIST})
 add_executable(client client.c)
 
 # 为可执行文件添加链接库文件
