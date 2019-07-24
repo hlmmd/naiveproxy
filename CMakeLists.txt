@@ -31,11 +31,11 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -W ")
 add_subdirectory (src) 
 
 # 设置可执行文件
-add_executable(naiveproxy main.c)
+#add_executable(naiveproxy main.c)
 add_executable(client client.c)
 
 # 为可执行文件添加链接库文件
-target_link_libraries (naiveproxy nproxy)
+#target_link_libraries (naiveproxy nproxy)
 
 #安装 incldue目录下所有的文件
 #INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/qevent) 

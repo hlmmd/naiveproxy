@@ -30,7 +30,7 @@ int forkfunc(int accept_sockfd, struct sockaddr_in* server_addr, struct sockaddr
 	fd_set rfds, wfds, arfds, awfds;
 	int retval;
 	struct timeval  tv;
-	tv.tv_sec = 5;
+	tv.tv_sec = 5; 
 	tv.tv_usec = 0;
 	int maxfd;
 	int flags;
