@@ -223,8 +223,7 @@ void tcp_et_events(struct epoll_event *events, int number, int epollfd, struct n
 
                 char logstr[1024];
 
-                int ret = sprintf(logstr, "Connected from %s,type:%s\n", inet_ntoa(client_address.sin_addr),
-                                  cfg->io_type == IO_TYPE_INOUT ? "INOUT" : "OUTIN");
+                int ret = sprintf(logstr, "Connected from %s\n", inet_ntoa(client_address.sin_addr));
 
                 nproxy_log(cfg->logfd, logstr, ret);
 

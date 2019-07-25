@@ -31,13 +31,11 @@ void print_one_config(struct nproxy_config *cfg)
 
     //注意，inet_ntoa是不可重入的。
     printf("PROTOCOL:          %s\n"
-           "IO_TYPE:           %s\n"
            "nproxy_server_ip:  %s\n"
            "nproxy_port:       %d\n"
            "dest_ipaddr:       %s\n"
            "dest_port:         %d\n",
            cfg->protocol == PROTOCOL_TCP ? "TCP" : "UDP",
-           cfg->io_type == IO_TYPE_INOUT ? "INOUT" : "OUTIN",
            inet_ntoa(nproxy_server),
            cfg->proxy_port,
            dest_ip,
@@ -121,22 +119,6 @@ int read_config_line(char *str, struct nproxy_config *cfg)
         exit(0);
     }
 
-    //IO_TYPE
-    memset(one_conf, 0, sizeof(one_conf));
-    ret = read_one_config(p_str, one_conf);
-    p_str += ret;
-
-    strupper(one_conf);
-    if (strcmp(one_conf, "INOUT") == 0)
-        cfg->io_type = IO_TYPE_INOUT;
-    else if (strcmp(one_conf, "OUTIN") == 0)
-        cfg->io_type = IO_TYPE_OUTIN;
-    else
-    {
-        printf("config error. support IO_TYPE: INOUT/OUTIN");
-        exit(0);
-    }
-
     //proxy_server_ip
     memset(one_conf, 0, sizeof(one_conf));
     ret = read_one_config(p_str, one_conf);
@@ -207,7 +189,7 @@ int init_nproxy_config(struct nproxy_config **cfgs_ptr)
             continue;
         struct nproxy_config *cfg = cfgs + nproxy_config_size;
         read_config_line(p_str, cfg);
-        nproxy_config_size++;        
+        nproxy_config_size++;
     }
     return nproxy_config_size;
 }

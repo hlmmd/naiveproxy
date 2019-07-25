@@ -43,12 +43,10 @@ struct nproxy_config
     uint32 client_num;
     //日志fd
     uint32 logfd;
-    //IO类型 IN->OUT/OUT->IN
-    uint8 io_type;
     //协议类型 TCP or UDP
     uint8 protocol;
     //填充字节
-    uint16 padding;
+    uint8 padding[3];
 };
 
 enum protocol_type
@@ -57,11 +55,11 @@ enum protocol_type
     PROTOCOL_UDP,
 };
 
-enum io_type
-{
-    IO_TYPE_INOUT,
-    IO_TYPE_OUTIN,
-};
+// enum io_type
+// {
+//     IO_TYPE_INOUT,
+//     IO_TYPE_OUTIN,
+// };
 
 int init_nproxy_config(struct nproxy_config **cfgs_ptr);
 int destroy_nproxy_config(struct nproxy_config **cfgs_ptr);

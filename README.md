@@ -27,13 +27,12 @@ sudo touch /etc/naiveproxy.conf
 sudo vi /etc/naiveproxy.conf
 #参数说明：
 #协议类型，目前只支持TCP
-#IOTYPE: 内网到外网OUTIN或者外网到内网INOUT
 #proxy服务器IP地址
 #proxy服务器端口
 #目的IP地址
 #目的端口
 #例子：外网想通过proxy服务器(192.168.3.90)的6666号端口访问内网(192.168.100.233)的80端口（web服务）
-TCP OUTIN   192.168.3.90    6666    192.168.100.233 80
+TCP     192.168.3.90    6666    192.168.100.233 80
 ```
 
 关闭进程：
