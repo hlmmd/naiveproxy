@@ -128,5 +128,7 @@ int main()
 
     clear_hashmap(sfh);
 
+    destroy_hashmap(&sfh);
+
     return 0;
 }

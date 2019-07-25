@@ -21,6 +21,8 @@
 
 int main()
 {
+
+  
     //设置为守护进程
     daemonize();
 

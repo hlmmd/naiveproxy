@@ -158,19 +158,30 @@ void clear_hashmap(struct socket_fd_hashmap *sfh)
     {
         return;
     }
-    if (sfh->nodes != NULL)
+
+    for (int i = 0; i < sfh->hashmap_size; i++)
     {
-        //
-        //
-        // free(sfh->nodes);
-        // sfh->nodes = NULL;
+        struct hash_node *p = sfh->nodes[i];
+        if (p == NULL)
+            continue;
+        else
+        {
+            while (p)
+            {
+                struct hash_node *next = p->next;
+                free(p);                
+                p = p->next;
+            }
+        }
     }
     sfh->numbers = 0;
 }
 
 void destroy_hashmap(struct socket_fd_hashmap **ssfh)
 {
-    
+    clear_hashmap(*ssfh);
+    free(*ssfh);
+    *ssfh = NULL;
 }
 
 void print_hashmap(struct socket_fd_hashmap *sfh)
