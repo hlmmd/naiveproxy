@@ -76,8 +76,7 @@ int nproxy_tcp_sendpeer(struct nproxy *client, int peer_fd, char *buffer, int le
             return 0;
         else
         {
-            sendcount += send(peer_fd, buffer, length, 0);
-
+            sendcount += send(peer_fd, buffer + sendcount, length - sendcount, 0);
         }
     }
 
@@ -106,7 +105,7 @@ int tcp_fork_connection(struct nproxy *client, int logfd)
         char buffer[MAX_BUFFER_SIZE];
         memset(buffer, 0, sizeof(buffer));
         //maxfd = max(client->client_fd, client->dest_fd);
-        maxfd = client->client_fd > client->dest_fd ? client->client_fd : client->dest_fd;       
+        maxfd = client->client_fd > client->dest_fd ? client->client_fd : client->dest_fd;
         FD_ZERO(&rdfs);
         FD_SET(client->client_fd, &rdfs);
         FD_SET(client->dest_fd, &rdfs);
