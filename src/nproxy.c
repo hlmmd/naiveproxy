@@ -15,6 +15,7 @@
 #include <sys/param.h>
 #include <sys/select.h>
 #include <assert.h>
+#include <sys/epoll.h>
 #include "nproxy.h"
 #include "nproxy-config.h"
 #include "nproxy-log.h"
@@ -52,129 +53,74 @@ int setup_tcp_dest_connection(struct nproxy *client)
     return dest_fd;
 }
 
-int nproxy_tcp_sendpeer(struct nproxy *client, int peer_fd, char *buffer, int length)
-{
-
-    char logstr[1024];
-    memset(logstr, 0, sizeof(logstr));
-    int sendcount = 0;
-    struct timeval tv;
-    tv.tv_sec = 1;
-    while (sendcount < length)
-    {
-        fd_set wrfs;
-        FD_ZERO(&wrfs);
-        FD_SET(peer_fd, &wrfs);
-        int ret = 0;
-
-        //ret = select(peer_fd + 1, NULL, &wrfs, NULL, NULL);
-        ret = select(peer_fd + 1, NULL, &wrfs, NULL, &tv);
-
-        if (ret < 0)
-            return sendcount;
-        else if (ret == 0)
-            return 0;
-        else
-        {
-            sendcount += send(peer_fd, buffer + sendcount, length - sendcount, 0);
-        }
-    }
-
-    return sendcount;
-}
-
-int tcp_fork_connection(struct nproxy *client, int logfd)
-{
-    struct nproxy_config *cfg = (struct nproxy_config *)client;
-
-    //print_one_config(cfg);
-    struct in_addr a;
-    a.s_addr = client->dest_ipaddr;
-    char *p = inet_ntoa(a);
-
-    char logstr[1024];
-
-    int dest_fd = setup_tcp_dest_connection(client);
-    client->dest_fd = dest_fd;
-    client->logfd = logfd;
-    fd_set rdfs;
-    int ret;
-    int maxfd = 0;
-    while (1)
-    {
-        char buffer[MAX_BUFFER_SIZE];
-        memset(buffer, 0, sizeof(buffer));
-        //maxfd = max(client->client_fd, client->dest_fd);
-        maxfd = client->client_fd > client->dest_fd ? client->client_fd : client->dest_fd;
-        FD_ZERO(&rdfs);
-        FD_SET(client->client_fd, &rdfs);
-        FD_SET(client->dest_fd, &rdfs);
-        int ret = select(maxfd + 1, &rdfs, NULL, NULL, NULL);
-        if (ret < 0)
-            return 0;
-        else if (ret == 0)
-            continue;
-        else
-        {
-            if (FD_ISSET(client->client_fd, &rdfs))
-            {
-                while (1)
-                {
-                    int ret = recv(client->client_fd, buffer, MAX_BUFFER_SIZE, 0);
-                    if (ret > 0)
-                    {
-                        int writebyte = nproxy_tcp_sendpeer(client, client->dest_fd, buffer, ret);
-                        if (writebyte <= 0)
-                        {
-                            close(client->dest_fd);
-                            exit(0);
-                        }
-                        if (ret < MAX_BUFFER_SIZE)
-                            break;
-                    }
-                    else
-                    {
-                        close(client->client_fd);
-                        //断开连接
-                        exit(0);
-                    }
-                }
-            }
-            if (FD_ISSET(client->dest_fd, &rdfs))
-            {
-                while (1)
-                {
-                    int ret = recv(client->dest_fd, buffer, MAX_BUFFER_SIZE, 0);
-                    if (ret > 0)
-                    {
-                        //nproxy_log(logfd, buffer, ret);
-                        int writebyte = nproxy_tcp_sendpeer(client, client->client_fd, buffer, ret);
-                        if (writebyte <= 0)
-                        {
-                            close(client->client_fd);
-                            exit(0);
-                        }
-                        if (ret < MAX_BUFFER_SIZE)
-                            break;
-                    }
-                    else
-                    {
-                        close(client->dest_fd);
-                        //断开连接
-                        exit(0);
-                    }
-                }
-            }
-        }
-    }
-
-    //    printf("my pid:%d   ppid:%d\n", getpid(), getppid());
-    return 0;
-}
-
 int start_udp_nproxy(struct nproxy_config *cfg)
 {
     return 0;
+}
+
+void tcp_et(struct epoll_event *events, int number, int epollfd, int listenfd)
+{
+//     char buf[MAX_BUFFER_SIZE];
+//     for (int i = 0; i < number; i++)
+//     {
+//         int sockfd = events[i].data.fd;
+//         if (sockfd == listenfd)
+//         {
+//             struct sockaddr_in client_address;
+//             socklen_t client_addrlength = sizeof(client_address);
+
+//             while (1)
+//             {
+//                 if (connected >= USER_LIMIT)
+//                     continue;
+//                 int connfd = accept(listenfd, (struct sockaddr *)&client_address, &client_addrlength);
+//                 //   if (connfd < 0 && (errno == EAGAIN || errno == ECONNABORTED || errno == EPROTO || errno == EINTR))
+//                 if (connfd < 0 && (errno == EAGAIN))
+//                     break;
+//                 else if (connfd < 0)
+//                 {
+//                     printf("<0\n");
+//                 }
+
+//                 addfd(epollfd, connfd, true);
+//                 printf("current user:%d\n", connected);
+//             }
+//         }
+//         else if (events[i].events & EPOLLIN)
+//         {
+//             while (1)
+//             {
+//                 memset(buf, '\0', BUFFER_SIZE);
+//                 int ret = recv(sockfd, buf, BUFFER_SIZE - 1, 0);
+//                 if (ret < 0)
+//                 {
+//                     if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+//                     {
+//                         //     printf("read later\n");
+//                         break;
+//                     }
+//                     close(sockfd);
+//                     break;
+//                 }
+//                 else if (ret == 0)
+//                 {
+//                     epoll_ctl(epollfd, EPOLL_CTL_ADD, sockfd, events);
+//                     close(sockfd);
+//                     connected--;
+//                     printf("current user:%d\n", connected);
+//                     break;
+//                 }
+//                 else
+//                 {
+//                     //      printf("get %d bytes of content: %s\n", ret, buf);
+//                 }
+//             }
+//         }
+//         else
+//         {
+//             printf("something else happened \n");
+//         }
+//     }
 }
 
 int start_tcp_nproxy(struct nproxy_config *cfg)
@@ -206,72 +152,27 @@ int start_tcp_nproxy(struct nproxy_config *cfg)
     ret = listen(listen_sockfd, 10);
     assert(ret != -1);
 
-    while (1)
-    {
-        int ret = 0;
-        fd_set rfds;
-        int maxfd = listen_sockfd;
-        //清空集合
-        FD_ZERO(&rfds);
-        //将当前连接和listen socket句柄加入到集合中
-        FD_SET(listen_sockfd, &rfds);
+    struct epoll_event *events = (struct epoll_event *)malloc(sizeof(struct epoll_event) * USER_LIMIT);
 
-        ret = select(maxfd + 1, &rfds, NULL, NULL, NULL);
-        if (ret == -1)
-        {
-            printf("select error\n");
-            break;
-        }
-        else if (ret == 0)
-            continue;
-        else
-        {
-            if (FD_ISSET(listen_sockfd, &rfds))
-            {
-                struct sockaddr_in client_addr;
-                socklen_t client_addr_length = sizeof(client_addr);
-                int clientfd;
+    //epoll_create的第二个参数已经被忽略了。
+    int epollfd = epoll_create(USER_LIMIT);
+    assert(epollfd != -1);
+    // addfd(epollfd, listen_sockfd, true);
 
-                if ((clientfd = accept(listen_sockfd, (struct sockaddr *)&client_addr, &client_addr_length)) > 0)
-                {
-                    struct nproxy *client = (struct nproxy *)malloc(sizeof(struct nproxy));
-                    memset(client, 0, sizeof(struct nproxy));
-                    memcpy(client, cfg, sizeof(struct nproxy_config));
-                    client->client_fd = clientfd;
+    // // connected--;
+    // while (1)
+    // {
+    //     int ret = epoll_wait(epollfd, events, USER_LIMIT, -1);
+    //     if (ret < 0)
+    //     {
+    //         printf("epoll failure\n");
+    //         break;
+    //     }
+    //     tcp_et(events, ret, epollfd, listen_sockfd);
+    // }
+    // close(listen_sockfd);
 
-                    char logstr[1024];
-                    int ret = sprintf(logstr, "Connected from %s,type:%s\n", inet_ntoa(client_addr.sin_addr),
-                                      cfg->io_type == IO_TYPE_INOUT ? "INOUT" : "OUTIN");
-
-                    nproxy_log(logfd, logstr, ret);
-                    //忽略SIGCHLD，避免僵尸进程
-                    signal(SIGCHLD, SIG_IGN);
-
-                    pid_t pid;
-                    if ((pid = fork()) < 0)
-                    {
-                        printf("fork error\n");
-                        exit(-1);
-                    }
-                    else if (pid == 0)
-                    {
-                        free(cfg);
-                        cfg = NULL;
-                        close(listen_sockfd);
-
-                        tcp_fork_connection(client, logfd);
-
-                        exit(0);
-                    }
-                    close(clientfd);
-                    free(client);
-                    client = NULL;
-                }
-            }
-        }
-    }
-
-    close(listen_sockfd);
+    free(events);
     return 0;
 }
 

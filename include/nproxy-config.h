@@ -4,8 +4,17 @@
 
 #define MAX_CONFIG_SIZE 32
 #define MAX_BUFFER_SIZE 1024
+#define USER_LIMIT 20000
 
+//C编译器可能不支持bool类型
 
+#ifndef __cplusplus
+typedef enum
+{
+    false = 0,
+    true = 1
+} bool;
+#endif
 typedef unsigned char uint8;
 typedef unsigned int uint32;
 typedef unsigned short uint16;

@@ -37,6 +37,9 @@ aux_source_directory(src SRC_LIST)
 add_executable(naiveproxy ${SRC_LIST})
 add_executable(client client.c)
 
+#测试hashmap的程序，不能直接用cmake编译，（如何同时编译C和C++ 程序？？）
+#add_executable(hashmap testhashmap.cpp src/hashmap.c)
+
 # 为可执行文件添加链接库文件
 #target_link_libraries (naiveproxy nproxy)
 

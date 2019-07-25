@@ -4,7 +4,7 @@
 #define CONFIG_FILE_NAME "/etc/naiveproxy.conf"
 
 #include "nproxy-config.h"
-
+#include "hashmap.h"
 //设置4字节对齐
 #pragma pack(4)
 
