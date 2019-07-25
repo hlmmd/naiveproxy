@@ -1,4 +1,3 @@
-
 #ifndef INCLUDE_NPROXY_LOG
 #define INCLUDE_NPROXY_LOG
 

@@ -55,9 +55,13 @@ int nproxy_log(int fd, char *oristr, int length)
         return fd;
 
     int ret = 0;
+
+    //日志文件极大地影响了性能。
+    //TODO: 改成mmap
+
 #ifdef USE_O_APPEND
     ret = write(fd, str, length);
-    fsync(fd);
+    // fsync(fd);
 #else
     struct flock lock;
     lock.l_type = F_WRLCK;

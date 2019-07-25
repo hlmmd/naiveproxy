@@ -1,3 +1,6 @@
+//测试哈希表。不知道怎么用cmake联合编译.c和.cpp文件。
+//可以单独用g++命令编译
+
 #include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>

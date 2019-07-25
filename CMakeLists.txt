@@ -28,14 +28,15 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall ")
 #)
 
 # 添加 src 目录
-add_subdirectory (src) 
+#add_subdirectory (src) 
 
 aux_source_directory(src SRC_LIST) 
 
 # 设置可执行文件
 #add_executable(naiveproxy src/main.c)
 add_executable(naiveproxy ${SRC_LIST})
-add_executable(client client.c)
+#add_executable(client client.c)
+#add_executable(client_epoll client_epoll.cpp)
 
 #测试hashmap的程序，不能直接用cmake编译，（如何同时编译C和C++ 程序？？）
 #add_executable(hashmap testhashmap.cpp src/hashmap.c)
@@ -45,4 +46,7 @@ add_executable(client client.c)
 
 #安装 incldue目录下所有的文件
 #INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/qevent) 
+
+#安装二进制文件
+install(TARGETS naiveproxy DESTINATION bin)
 

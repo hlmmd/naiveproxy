@@ -168,6 +168,11 @@ void clear_hashmap(struct socket_fd_hashmap *sfh)
     sfh->numbers = 0;
 }
 
+void destroy_hashmap(struct socket_fd_hashmap **ssfh)
+{
+    
+}
+
 void print_hashmap(struct socket_fd_hashmap *sfh)
 {
     if (sfh == NULL)
@@ -182,22 +187,3 @@ void print_hashmap(struct socket_fd_hashmap *sfh)
         }
     }
 }
-
-// void socket_fd_clear(struct socket_fd_map *ctx)
-// {
-//     if (ctx->entries != NULL)
-//     {
-//         int i;
-//         for (i = 0; i < ctx->nentries; ++i)
-//         {
-//             if (ctx->entries[i] != NULL)
-//             {
-//                 free(ctx->entries[i]);
-//                 ctx->entries[i] = NULL;
-//             }
-//         }
-//         free(ctx->entries);
-//         ctx->entries = NULL;
-//     }
-//     ctx->nentries = 0;
-// }

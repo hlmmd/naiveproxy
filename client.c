@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 	printf("connected server !\n");
 
 	fd_set rfds;
-	int maxfd,ret;
+	int maxfd, ret;
 	struct timeval tv;
 	char buffer[BUFFER_SIZE];
 	while (1)
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 		else
 		{
 			if (FD_ISSET(sockfd, &rfds))
-			{ 
+			{
 				bzero(buffer, BUFFER_SIZE);
 				int len = recv(sockfd, buffer, BUFFER_SIZE, 0);
 				if (len > 0)
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 				}
 			}
 			if (FD_ISSET(0, &rfds))
-			{ 
+			{
 				bzero(buffer, BUFFER_SIZE);
 				fgets(buffer, BUFFER_SIZE, stdin);
 				buffer[strlen(buffer) - 1] = '\0';

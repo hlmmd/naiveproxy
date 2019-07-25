@@ -207,7 +207,7 @@ int init_nproxy_config(struct nproxy_config **cfgs_ptr)
             continue;
         struct nproxy_config *cfg = cfgs + nproxy_config_size;
         read_config_line(p_str, cfg);
-        nproxy_config_size++;
+        nproxy_config_size++;        
     }
     return nproxy_config_size;
 }

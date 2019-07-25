@@ -1,13 +1,6 @@
-/*
- * Generic hashmap manipulation functions
- *
- * Originally by Elliot C Back - http://elliottback.com/wp/hashmap-implementation-in-c/
- *
- * Modified by Pete Warden to fix a serious performance problem, support strings as keys
- * and removed thread synchronization - http://petewarden.typepad.com
- */
-#ifndef __HASHMAP_H__
-#define __HASHMAP_H__
+
+#ifndef INCLUDE_HASHMAP
+#define INCLUDE_HASHMAP
 
 #define MAP_MISSING -3 /* No such element */
 #define MAP_FULL -2    /* Hashmap is full */
@@ -15,7 +8,7 @@
 #define MAP_OK 0       /* OK */
 
 //1361, 2729, 5471, 10949, 21911,43853,87719
-#define HASHMAP_INIT_SIZE 43853
+#define HASHMAP_INIT_SIZE 87719
 
 typedef int key_t;
 typedef int value_t;
@@ -49,5 +42,7 @@ int update_hashmap(struct socket_fd_hashmap *sfh, key_t key, value_t value);
 int delete_hashmap(struct socket_fd_hashmap *sfh, key_t key);
 
 void print_hashmap(struct socket_fd_hashmap *sfh);
+
+void destroy_hashmap(struct socket_fd_hashmap **ssfh);
 
 #endif
