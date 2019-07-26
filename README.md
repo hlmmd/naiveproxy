@@ -54,6 +54,7 @@ killall -9 naiveproxy
 ## TODO LIST
 
 * 扩充协议：UDP、HTTP等
+* dns解析
 * 完善日志系统
 * 添加信号处理
 * 零拷贝技术
