@@ -223,7 +223,8 @@ void tcp_et_events(struct epoll_event *events, int number, int epollfd, struct n
                     break;
                 else if (connfd < 0)
                 {
-                    printf("<0\n");
+                    //printf("<0\n");
+                    return 0;
                 }
 
                 char logstr[1024];
@@ -333,7 +334,7 @@ int start_tcp_nproxy(struct nproxy_config *cfg)
     ret = bind(cfg->listen_sockfd, (struct sockaddr *)&nproxy_addr, sizeof(nproxy_addr));
     if (ret != 0)
     {
-        exit(0);
+        return 0;
     }
 
     ret = listen(cfg->listen_sockfd, 10);
