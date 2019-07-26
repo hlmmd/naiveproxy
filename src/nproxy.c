@@ -16,6 +16,11 @@
 #include <time.h>
 #include <sys/param.h>
 #include <sys/select.h>
+
+#ifndef NDEBUG
+#define NDEBUG
+#endif
+
 #include <assert.h>
 #include <sys/epoll.h>
 #include "nproxy.h"
@@ -211,8 +216,8 @@ void tcp_et_events(struct epoll_event *events, int number, int epollfd, struct n
             //epoll的et模式下面，accept需要用while循环
             while (1)
             {
-                // if (connected >= USER_LIMIT)
-                //     continue;
+                if (cfg->client_num >= USER_LIMIT)
+                    continue;
                 int connfd = accept(listenfd, (struct sockaddr *)&client_address, &client_addrlength);
                 if (connfd < 0 && (errno == EAGAIN))
                     break;
@@ -326,8 +331,10 @@ int start_tcp_nproxy(struct nproxy_config *cfg)
     setnonblocking(cfg->listen_sockfd);
 
     ret = bind(cfg->listen_sockfd, (struct sockaddr *)&nproxy_addr, sizeof(nproxy_addr));
-
-    assert(ret != -1);
+    if (ret != 0)
+    {
+        exit(0);
+    }
 
     ret = listen(cfg->listen_sockfd, 10);
     assert(ret != -1);
