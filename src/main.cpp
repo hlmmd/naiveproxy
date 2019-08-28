@@ -19,21 +19,25 @@
 
 #include "nproxy.h"
 
+#include "naiveproxy.hpp"
+
 int main()
-{
+{  
 
-  
-    //设置为守护进程
-    daemonize();
+    naiveproxy* np = naiveproxy::GetInstance();
 
-    //保证只有一个主进程实例
-    int oncefd = open_only_once();
+    //np->daemonize();
 
-    start_nproxys();
+    np->open_only_once();
 
-    while (1)
+    while(1)
         ;
+    
+    naiveproxy::DestroyInstance();
 
-    close(oncefd);
+    return 0;
+
+  //  start_nproxys();
+
     return 0;
 }

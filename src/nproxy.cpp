@@ -224,7 +224,7 @@ void tcp_et_events(struct epoll_event *events, int number, int epollfd, struct n
                 else if (connfd < 0)
                 {
                     //printf("<0\n");
-                    return 0;
+                    return ;
                 }
 
                 char logstr[1024];

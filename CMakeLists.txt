@@ -8,7 +8,8 @@ project (naiveproxy)
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
 # 生成debug/release版本
-SET(CMAKE_BUILD_TYPE "release")
+#SET(CMAKE_BUILD_TYPE "release")
+SET(CMAKE_BUILD_TYPE "debug")
 if (CMAKE_BUILD_TYPE STREQUAL debug)
     add_definitions(-D_DEBUG)
 endif ()
