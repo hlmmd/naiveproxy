@@ -1,7 +1,15 @@
 #ifndef INCLUDE_NAIVEPROXY
 #define INCLUDE_NAIVEPROXY
 
+
+#include <list>
+using std::list;
+
 class proxy;
+
+
+
+class naiveconfig;
 
 //单利模式 工厂， 读取config并创建proxy实例。
 class naiveproxy{
@@ -22,6 +30,11 @@ class naiveproxy{
 
     int StopProxy(proxy *);
 
+    int init_proxys();
+
+
+    int init_logfd();
+
     protected:
 
     private:
@@ -35,7 +48,14 @@ class naiveproxy{
     //打开一个文件，保证只有一个naiveproxy程序实例，初始化为-1
     int oncefd;
 
+    //日志文件fd
+    int logfd;
+
+    //配置文件
+    list<naiveconfig*> cfgs;
 
 };
+
+
 
 #endif

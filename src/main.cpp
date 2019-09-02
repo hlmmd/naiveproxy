@@ -22,22 +22,20 @@
 #include "naiveproxy.hpp"
 
 int main()
-{  
+{
 
-    naiveproxy* np = naiveproxy::GetInstance();
+	naiveproxy *np = naiveproxy::GetInstance();
 
-    //np->daemonize();
+	//np->daemonize();
 
-    np->open_only_once();
+	np->open_only_once();
 
-    while(1)
-        ;
-    
-    naiveproxy::DestroyInstance();
+	np->init_proxys();
 
-    return 0;
+	//  while(1)
+	//     ;
 
-  //  start_nproxys();
+	naiveproxy::DestroyInstance();
 
-    return 0;
+	return 0;
 }

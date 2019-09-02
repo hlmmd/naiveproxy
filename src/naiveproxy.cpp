@@ -18,20 +18,30 @@
 #include <sys/param.h>
 #include <sys/select.h>
 
+#include "naiveconfig.hpp"
+#include "proxy.hpp"
+#define USE_O_APPEND
+#define LOG_FILE_NAME "/tmp/naiveproxy.log"
+#define CONFIG_FILE_NAME "/etc/naiveproxy.conf"
+
 naiveproxy::naiveproxy()
 {
     printf("constructor\n");
     daemonized = false;
     oncefd = -1;
-
 }
 
 naiveproxy::~naiveproxy()
 {
     printf("destructor\n");
     //关闭打开文件
-    if(oncefd!=-1)
+    if (oncefd != -1)
         close(oncefd);
+
+    for (auto it = cfgs.begin(); it != cfgs.end(); it++)
+    {
+        delete *it;
+    }
 }
 
 naiveproxy *naiveproxy::instance = NULL;
@@ -47,7 +57,7 @@ naiveproxy *naiveproxy::GetInstance()
 
 void naiveproxy::DestroyInstance()
 {
-    if( instance!=NULL)
+    if (instance != NULL)
     {
         delete instance;
         instance = NULL;
@@ -56,7 +66,7 @@ void naiveproxy::DestroyInstance()
 
 int naiveproxy::daemonize()
 {
-    if(daemonized == true)
+    if (daemonized == true)
         return -1;
 
     int pid;
@@ -93,7 +103,7 @@ int naiveproxy::daemonize()
     //忽略SIGCHLD信号，防止产生僵尸进程
     signal(SIGCHLD, SIG_IGN);
 
-    daemonized  = true;
+    daemonized = true;
     return 0;
 }
 
@@ -139,7 +149,7 @@ int naiveproxy::open_only_once()
     //获取当前进程pid
     sprintf(buf, "%d\n", getpid());
     //将启动成功的进程pid写入控制文件
-    if (write(fd, buf, strlen(buf)) != strlen(buf))
+    if (write(fd, buf, strlen(buf)) != (ssize_t)strlen(buf))
         return -1;
 
     // set close-on-exec flag for descriptor
@@ -155,4 +165,91 @@ int naiveproxy::open_only_once()
     oncefd = fd;
 
     return fd;
+}
+
+int naiveproxy::init_logfd()
+{
+    //初始化 logfd
+    //当有O_CREAT时，需要使用三个参数。
+    //使用了O_APPEND标志位时，write是原子操作，可以不加锁
+#ifdef USE_O_APPEND
+    if ((logfd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT | O_APPEND, 0755)) < 0)
+#else
+    if ((logfd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT, 0755)) < 0)
+#endif
+    {
+        printf("open log file error\n");
+        exit(-1);
+    }
+    return logfd;
+}
+
+int naiveproxy::init_proxys()
+{
+    init_logfd();
+    //忽略SIGCHID
+    signal(SIGCHLD, SIG_IGN);
+
+    FILE *fp;
+    fp = fopen(CONFIG_FILE_NAME, "r");
+    if (fp == NULL)
+    {
+        printf("打开文件%s失败\n", CONFIG_FILE_NAME);
+        exit(0);
+    }
+
+    char str[1024];
+
+    while (fgets(str, sizeof(str), fp) != NULL)
+    {
+        char *p_str = str;
+        //删除前导空格等
+        while (*p_str == ' ' || *p_str == '\t' || *p_str == '\n')
+            p_str++;
+        //删除注释
+        char *p = p_str;
+        while (*p && *p != '#')
+            p++;
+        *p = 0;
+        if (*p_str == 0)
+            continue;
+
+        naiveconfig *cfg = new naiveconfig(p_str);
+        cfgs.push_front(cfg);
+    }
+
+    for (auto it = cfgs.begin(); it != cfgs.end(); it++)
+    {
+#if 1
+        pid_t pid;
+        pid = fork();
+        if (pid == 0)
+        {
+            //         naiveproxy::DestroyInstance();
+            naiveproxy::GetInstance()->cfgs.clear();
+            //释放父进程打开的文件描述符和申请的cfgs空间。
+            for (int i = 3; i < NOFILE; i++)
+                close(i);
+
+            proxy *pro = NULL;
+            if ((*it)->protocol == PROTOCOL_TCP)
+            {
+                pro = new tcpproxy(*it);
+            }
+            else if ((*it)->protocol == PROTOCOL_UDP)
+            {
+            }
+            pro->startproxy();
+            exit(0);
+        }
+        else if (pid < 0)
+        {
+            exit(0);
+        }
+#else
+        destroy_log(logfd);
+        start_tcp_nproxy(cfg);
+#endif
+    }
+    return 0;
 }
