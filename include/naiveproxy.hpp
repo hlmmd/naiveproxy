@@ -33,7 +33,7 @@ class naiveproxy{
     int init_proxys();
 
 
-    int init_logfd();
+    static int init_logfd();
 
     protected:
 

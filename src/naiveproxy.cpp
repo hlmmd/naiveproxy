@@ -169,24 +169,25 @@ int naiveproxy::open_only_once()
 
 int naiveproxy::init_logfd()
 {
+    int fd = -1;
     //初始化 logfd
     //当有O_CREAT时，需要使用三个参数。
     //使用了O_APPEND标志位时，write是原子操作，可以不加锁
 #ifdef USE_O_APPEND
-    if ((logfd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT | O_APPEND, 0755)) < 0)
+    if ((fd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT | O_APPEND, 0755)) < 0)
 #else
-    if ((logfd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT, 0755)) < 0)
+    if ((fd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT, 0755)) < 0)
 #endif
     {
         printf("open log file error\n");
         exit(-1);
     }
-    return logfd;
+    return fd;
 }
 
 int naiveproxy::init_proxys()
 {
-    init_logfd();
+    logfd = init_logfd();
     //忽略SIGCHID
     signal(SIGCHLD, SIG_IGN);
 
@@ -220,7 +221,7 @@ int naiveproxy::init_proxys()
 
     for (auto it = cfgs.begin(); it != cfgs.end(); it++)
     {
-#if 1
+#if 0
         pid_t pid;
         pid = fork();
         if (pid == 0)
@@ -247,8 +248,16 @@ int naiveproxy::init_proxys()
             exit(0);
         }
 #else
-        destroy_log(logfd);
-        start_tcp_nproxy(cfg);
+        //  destroy_log(logfd);
+        proxy *pro = NULL;
+        if ((*it)->protocol == PROTOCOL_TCP)
+        {
+            pro = new tcpproxy(*it);
+        }
+        else if ((*it)->protocol == PROTOCOL_UDP)
+        {
+        }
+        pro->startproxy();
 #endif
     }
     return 0;
