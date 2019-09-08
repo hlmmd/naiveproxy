@@ -1,32 +1,10 @@
-#include "naiveproxy.hpp"
-
-#include <cstdlib>
-
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <errno.h>
 #include <arpa/inet.h> //inet_ntoa()
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
-#include <sys/param.h>
-#include <sys/select.h>
-
 #include <vector>
 #include <string>
 #include "naiveconfig.hpp"
-
-#include <iostream>
-
-#define USE_O_APPEND
-#define LOG_FILE_NAME "/tmp/naiveproxy.log"
-#define CONFIG_FILE_NAME "/etc/naiveproxy.conf"
 
 void naiveconfig::remove_comment(char *str)
 {
@@ -38,7 +16,7 @@ void naiveconfig::remove_comment(char *str)
 
 naiveconfig::naiveconfig(char *str)
 {
- //   printf("%s\n", str);
+    //   printf("%s\n", str);
     std::vector<std::string> res;
     const char *d = " \t\n";
 
@@ -62,7 +40,7 @@ naiveconfig::naiveconfig(char *str)
     else
     {
         printf("config error. support protocol: TCP/UDP");
-        return ;
+        return;
     }
 
     //proxy_server_ip

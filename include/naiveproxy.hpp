@@ -1,13 +1,11 @@
 #ifndef INCLUDE_NAIVEPROXY
 #define INCLUDE_NAIVEPROXY
 
-
+#include "proxy.hpp"
 #include <list>
 using std::list;
 
 class proxy;
-
-
 
 class naiveconfig;
 
@@ -32,9 +30,6 @@ class naiveproxy{
 
     int init_proxys();
 
-
-    static int init_logfd();
-
     protected:
 
     private:
@@ -48,8 +43,6 @@ class naiveproxy{
     //打开一个文件，保证只有一个naiveproxy程序实例，初始化为-1
     int oncefd;
 
-    //日志文件fd
-    int logfd;
 
     //配置文件
     list<naiveconfig*> cfgs;

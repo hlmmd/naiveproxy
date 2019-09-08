@@ -1,8 +1,11 @@
 #ifndef INCLUDE_NAIVECONFIG
 #define INCLUDE_NAIVECONFIG
 
+#define USE_O_APPEND
+#define LOG_FILE_NAME "/tmp/naiveproxy.log"
+#define CONFIG_FILE_NAME "/etc/naiveproxy.conf"
 
-const int MAX_CONFIG_SIZE =  32;
+const int MAX_CONFIG_SIZE = 32;
 const int MAX_BUFFER_SIZE = 4096;
 const int USER_LIMIT = 20000;
 
@@ -10,9 +13,9 @@ typedef unsigned char uint8;
 typedef unsigned int uint32;
 typedef unsigned short uint16;
 
-
-class naiveconfig{
-    public:
+class naiveconfig
+{
+public:
     //用于映射socketfd的哈希表。map[clientfd] = destfd,map[destfd]=clientfd
     //struct socket_fd_hashmap *sfh;
 
@@ -29,31 +32,22 @@ class naiveconfig{
     //当前连接个数
     uint32 client_num;
     //日志fd
-    uint32 logfd;
+    //uint32 logfd;
     //协议类型 TCP or UDP
     uint8 protocol;
     //填充字节
     uint8 padding[3];
 
-    void remove_comment(char * str);
+    void remove_comment(char *str);
 
-    naiveconfig(char * str);
+    naiveconfig(char *str);
     void print();
-
 };
-
-
-
-
-
-
-
 
 enum protocol_type
 {
     PROTOCOL_TCP,
     PROTOCOL_UDP,
 };
-
 
 #endif

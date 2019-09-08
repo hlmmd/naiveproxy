@@ -1,39 +1,26 @@
 #include "naiveproxy.hpp"
-
-#include <cstdlib>
-
 #include <sys/types.h>
 #include <signal.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <errno.h>
 #include <arpa/inet.h> //inet_ntoa()
 #include <unistd.h>
 #include <fcntl.h>
-#include <time.h>
-#include <sys/param.h>
-#include <sys/select.h>
 
 #include "naiveconfig.hpp"
-#include "proxy.hpp"
-#define USE_O_APPEND
-#define LOG_FILE_NAME "/tmp/naiveproxy.log"
-#define CONFIG_FILE_NAME "/etc/naiveproxy.conf"
 
 naiveproxy::naiveproxy()
 {
-    printf("constructor\n");
+    //printf("constructor\n");
     daemonized = false;
     oncefd = -1;
 }
 
 naiveproxy::~naiveproxy()
 {
-    printf("destructor\n");
+    //printf("destructor\n");
     //关闭打开文件
     if (oncefd != -1)
         close(oncefd);
@@ -75,6 +62,7 @@ int naiveproxy::daemonize()
         exit(0);
     else if (pid < 0)
         exit(1);
+
     //创建会话期
     setsid();
 
@@ -84,6 +72,9 @@ int naiveproxy::daemonize()
         exit(0);
     else if (pid < 0)
         exit(1);
+
+    //保证程序只运行一次
+    open_only_once();
 
     //设置工作目录，设置为/tmp保证具有权限
     int ret = chdir("/tmp");
@@ -167,27 +158,9 @@ int naiveproxy::open_only_once()
     return fd;
 }
 
-int naiveproxy::init_logfd()
-{
-    int fd = -1;
-    //初始化 logfd
-    //当有O_CREAT时，需要使用三个参数。
-    //使用了O_APPEND标志位时，write是原子操作，可以不加锁
-#ifdef USE_O_APPEND
-    if ((fd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT | O_APPEND, 0755)) < 0)
-#else
-    if ((fd = open(LOG_FILE_NAME, O_WRONLY | O_CREAT, 0755)) < 0)
-#endif
-    {
-        printf("open log file error\n");
-        exit(-1);
-    }
-    return fd;
-}
-
 int naiveproxy::init_proxys()
 {
-    logfd = init_logfd();
+
     //忽略SIGCHID
     signal(SIGCHLD, SIG_IGN);
 
@@ -221,16 +194,17 @@ int naiveproxy::init_proxys()
 
     for (auto it = cfgs.begin(); it != cfgs.end(); it++)
     {
-#if 0
+#if 1
         pid_t pid;
         pid = fork();
         if (pid == 0)
         {
-            //         naiveproxy::DestroyInstance();
+
+            //naiveproxy::DestroyInstance();
             naiveproxy::GetInstance()->cfgs.clear();
             //释放父进程打开的文件描述符和申请的cfgs空间。
-            for (int i = 3; i < NOFILE; i++)
-                close(i);
+            // for (int i = 3; i < NOFILE; i++)
+            //     close(i);
 
             proxy *pro = NULL;
             if ((*it)->protocol == PROTOCOL_TCP)
