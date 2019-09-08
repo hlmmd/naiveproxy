@@ -1,6 +1,8 @@
 # naiveproxy
 
-一个基于C语言的proxy程序。
+一个基于C++的proxy程序。
+
+[C语言版本](https://github.com/hlmmd/naiveproxy/tree/c)
 
 ## 功能
 
