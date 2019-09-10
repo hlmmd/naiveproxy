@@ -189,22 +189,42 @@ int naiveproxy::init_proxys()
             continue;
 
         naiveconfig *cfg = new naiveconfig(p_str);
+        //由于是push_front，所以配置文件可以看做是从下往上处理的
         cfgs.push_front(cfg);
     }
 
     for (auto it = cfgs.begin(); it != cfgs.end(); it++)
     {
-#if 1
-        pid_t pid;
-        pid = fork();
-        if (pid == 0)
+        if (daemonized)
         {
+            pid_t pid;
+            pid = fork();
+            if (pid == 0)
+            {
+                //naiveproxy::DestroyInstance();
+                naiveproxy::GetInstance()->cfgs.clear();
+                //释放父进程打开的文件描述符和申请的cfgs空间。
+                // for (int i = 3; i < NOFILE; i++)
+                //     close(i);
 
-            //naiveproxy::DestroyInstance();
-            naiveproxy::GetInstance()->cfgs.clear();
-            //释放父进程打开的文件描述符和申请的cfgs空间。
-            // for (int i = 3; i < NOFILE; i++)
-            //     close(i);
+                proxy *pro = NULL;
+                if ((*it)->protocol == PROTOCOL_TCP)
+                {
+                    pro = new tcpproxy(*it);
+                }
+                else if ((*it)->protocol == PROTOCOL_UDP)
+                {
+                }
+                pro->startproxy();
+                exit(0);
+            }
+            else if (pid < 0)
+            {
+                exit(0);
+            }
+        }
+        else
+        {
 
             proxy *pro = NULL;
             if ((*it)->protocol == PROTOCOL_TCP)
@@ -215,24 +235,7 @@ int naiveproxy::init_proxys()
             {
             }
             pro->startproxy();
-            exit(0);
         }
-        else if (pid < 0)
-        {
-            exit(0);
-        }
-#else
-        //  destroy_log(logfd);
-        proxy *pro = NULL;
-        if ((*it)->protocol == PROTOCOL_TCP)
-        {
-            pro = new tcpproxy(*it);
-        }
-        else if ((*it)->protocol == PROTOCOL_UDP)
-        {
-        }
-        pro->startproxy();
-#endif
     }
     return 0;
 }

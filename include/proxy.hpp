@@ -42,4 +42,27 @@ public:
     virtual int do_send(int sockfd, unsigned char *buf, int len);
 };
 
+
+// class httpproxy : public tcpproxy
+// {
+// public:
+//     int epollfd;
+//     struct epoll_event *events;
+//     //sockfd_fd_map
+//     unordered_map<int, int> sfh;
+
+//     void epoll_addfd(int fd);
+//     httpproxy(naiveconfig *cfg);
+//     virtual ~httpproxy();
+//     virtual void startproxy();
+//     virtual int setnonblocking(uint32);
+//     virtual void handle_events(int);
+//     virtual int do_accept(int);
+//     virtual int do_read(int sockfd, unsigned char *buf, int len);
+//     virtual int do_send(int sockfd, unsigned char *buf, int len);
+// };
+
+
+
+
 #endif

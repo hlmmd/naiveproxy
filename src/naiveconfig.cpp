@@ -4,6 +4,7 @@
 #include <arpa/inet.h> //inet_ntoa()
 #include <vector>
 #include <string>
+#include <netdb.h> //gethostbyname
 #include "naiveconfig.hpp"
 
 void naiveconfig::remove_comment(char *str)
@@ -61,10 +62,48 @@ naiveconfig::naiveconfig(char *str)
     p_str = strtok(NULL, d);
     if (inet_aton(p_str, &pro_addr) == 0)
     {
-        perror(p_str);
-        exit(errno);
+        struct in_addr t;
+        struct hostent *hostp;
+        char **pp;
+
+        hostp = gethostbyname(p_str);
+        if (hostp == NULL)
+        {
+            perror(p_str);
+            exit(errno);
+        }
+
+        // char **pptr;
+        // char str[INET_ADDRSTRLEN];
+        // for (pptr = hostp->h_aliases; *pptr != NULL; pptr++)
+        // {
+        //     printf("\ttalias: %s\n", *pptr);
+        // }
+
+        // switch (hostp->h_addrtype)
+        // {
+        // case AF_INET:
+        //     pptr = hostp->h_addr_list;
+        //     for (; *pptr != NULL; pptr++)
+        //     {
+        //         printf("\taddress: %s\n",
+        //                inet_ntop(hostp->h_addrtype, hostp->h_addr, str, sizeof(str)));
+        //     }
+        //     break;
+        // default:
+        //     printf("unknown address type\n");
+        //     break;
+        // }
+
+        // printf("%s\n", hostp->h_name);
+
+        dest_ipaddr = ((struct in_addr *)*hostp->h_addr_list)->s_addr;
     }
-    dest_ipaddr = pro_addr.s_addr;
+    else
+    {
+        dest_ipaddr = pro_addr.s_addr;
+    }
+    //printf("%d\n", dest_ipaddr);
 
     //dest_server_port
     p_str = strtok(NULL, d);
