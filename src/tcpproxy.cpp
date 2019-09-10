@@ -19,6 +19,7 @@ tcpproxy::tcpproxy(naiveconfig *cfg1)
 
 tcpproxy::~tcpproxy()
 {
+    sfh.clear();
     if (events)
     {
         delete[] events;
@@ -189,7 +190,7 @@ void tcpproxy::handle_events(int number)
 
 void tcpproxy::startproxy()
 {
-    if (naiveproxy::GetInstance()->Isdaemonized()==false)
+    if (naiveproxy::GetInstance()->Isdaemonized() == false)
     {
         printf("start %s proxy\n", protocol_name[cfg->protocol]);
         cfg->print();

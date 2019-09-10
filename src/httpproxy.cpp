@@ -13,6 +13,7 @@
 
 httpproxy::~httpproxy()
 {
+    clientfds.clear();
     if (events)
     {
         delete[] events;
