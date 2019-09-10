@@ -24,8 +24,11 @@ tcpproxy::~tcpproxy()
         delete[] events;
         events = NULL;
     }
-    delete cfg;
-    cfg = NULL;
+    if (cfg)
+    {
+        delete[] cfg;
+        cfg = NULL;
+    }
 }
 
 int tcpproxy::setnonblocking(uint32 fd)
@@ -157,10 +160,10 @@ void tcpproxy::handle_events(int number)
                 {
                     return;
                 }
-                char logstr[1024];
-                int ret = sprintf(logstr, "Connected from %s\n", inet_ntoa(client_address.sin_addr));
+                // char logstr[1024];
+                // int ret = sprintf(logstr, "Connected from %s\n", inet_ntoa(client_address.sin_addr));
 
-                naivelog::GetInstance()->write_log(logstr, ret);
+                // naivelog::GetInstance()->write_log(logstr, ret);
                 //  nproxy_log(cfg->logfd, logstr, ret);
 
                 do_accept(connfd);
@@ -186,13 +189,11 @@ void tcpproxy::handle_events(int number)
 
 void tcpproxy::startproxy()
 {
-    //std::cout << "start tcp proxy" << std::endl;
-    //cfg->print();
-
-    //cfg->logfd = naiveproxy::init_logfd();
-
-    //初始化cfg的哈希表
-    //init_hashmap(&cfg->sfh);
+    if (naiveproxy::GetInstance()->Isdaemonized()==false)
+    {
+        printf("start %s proxy\n", protocol_name[cfg->protocol]);
+        cfg->print();
+    }
 
     int ret;
     struct sockaddr_in nproxy_addr;

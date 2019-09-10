@@ -1,12 +1,14 @@
 #ifndef INCLUDE_NAIVECONFIG
 #define INCLUDE_NAIVECONFIG
 
+#include <string>
+
 #define USE_O_APPEND
 #define LOG_FILE_NAME "/tmp/naiveproxy.log"
 #define CONFIG_FILE_NAME "/etc/naiveproxy.conf"
 
 const int MAX_CONFIG_SIZE = 32;
-const int MAX_BUFFER_SIZE = 4096;
+const int MAX_BUFFER_SIZE = 8192;
 const int USER_LIMIT = 20000;
 
 typedef unsigned char uint8;
@@ -35,8 +37,11 @@ public:
     //uint32 logfd;
     //协议类型 TCP or UDP
     uint8 protocol;
+
+    std::string hostname;
+
     //填充字节
-    uint8 padding[3];
+    //uint8 padding[3];
 
     void remove_comment(char *str);
 
@@ -46,8 +51,15 @@ public:
 
 enum protocol_type
 {
-    PROTOCOL_TCP,
+    PROTOCOL_TCP = 0,
     PROTOCOL_UDP,
+    PROTOCOL_HTTP,
+};
+
+const char protocol_name[][16] = {
+    "TCP",
+    "UDP",
+    "HTTP",
 };
 
 #endif

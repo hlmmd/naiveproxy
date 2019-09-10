@@ -51,10 +51,15 @@ void naiveproxy::DestroyInstance()
     }
 }
 
+bool naiveproxy::Isdaemonized()
+{
+    return daemonized;
+}
+
 int naiveproxy::daemonize()
 {
     if (daemonized == true)
-        return -1;
+        return 1;
 
     int pid;
     pid = fork();
@@ -215,6 +220,10 @@ int naiveproxy::init_proxys()
                 else if ((*it)->protocol == PROTOCOL_UDP)
                 {
                 }
+                else if ((*it)->protocol == PROTOCOL_HTTP)
+                {
+                    pro = new httpproxy(*it);
+                }
                 pro->startproxy();
                 exit(0);
             }
@@ -233,6 +242,10 @@ int naiveproxy::init_proxys()
             }
             else if ((*it)->protocol == PROTOCOL_UDP)
             {
+            }
+            else if ((*it)->protocol == PROTOCOL_HTTP)
+            {
+                pro = new httpproxy(*it);
             }
             pro->startproxy();
         }

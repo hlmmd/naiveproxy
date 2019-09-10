@@ -19,6 +19,8 @@ class naiveproxy{
     //设置守护进程
     int daemonize();
 
+    bool Isdaemonized();
+
     //设置进一个进程实例
     int open_only_once();
     
@@ -32,7 +34,6 @@ class naiveproxy{
 
     protected:
 
-    private:
     //对象实例指针
     static naiveproxy * instance;
     naiveproxy();
@@ -47,6 +48,7 @@ class naiveproxy{
     //配置文件
     list<naiveconfig*> cfgs;
 
+    private:
 };
 
 

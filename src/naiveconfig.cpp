@@ -38,9 +38,11 @@ naiveconfig::naiveconfig(char *str)
         protocol = PROTOCOL_TCP;
     else if (strcmp(p_str, "UDP") == 0)
         protocol = PROTOCOL_UDP;
+    else if (strcmp(p_str, "HTTP") == 0)
+        protocol = PROTOCOL_HTTP;
     else
     {
-        printf("config error. support protocol: TCP/UDP");
+        printf("config error. support protocol: TCP/UDP/HTTP");
         return;
     }
 
@@ -62,52 +64,31 @@ naiveconfig::naiveconfig(char *str)
     p_str = strtok(NULL, d);
     if (inet_aton(p_str, &pro_addr) == 0)
     {
-        struct in_addr t;
         struct hostent *hostp;
-        char **pp;
-
         hostp = gethostbyname(p_str);
         if (hostp == NULL)
         {
             perror(p_str);
-            exit(errno);
+            return;
+            //exit(errno);
         }
-
-        // char **pptr;
-        // char str[INET_ADDRSTRLEN];
-        // for (pptr = hostp->h_aliases; *pptr != NULL; pptr++)
-        // {
-        //     printf("\ttalias: %s\n", *pptr);
-        // }
-
-        // switch (hostp->h_addrtype)
-        // {
-        // case AF_INET:
-        //     pptr = hostp->h_addr_list;
-        //     for (; *pptr != NULL; pptr++)
-        //     {
-        //         printf("\taddress: %s\n",
-        //                inet_ntop(hostp->h_addrtype, hostp->h_addr, str, sizeof(str)));
-        //     }
-        //     break;
-        // default:
-        //     printf("unknown address type\n");
-        //     break;
-        // }
-
-        // printf("%s\n", hostp->h_name);
-
+        hostname = p_str;
+        //hostname = hostp->h_name;
         dest_ipaddr = ((struct in_addr *)*hostp->h_addr_list)->s_addr;
     }
     else
     {
         dest_ipaddr = pro_addr.s_addr;
     }
-    //printf("%d\n", dest_ipaddr);
 
     //dest_server_port
     p_str = strtok(NULL, d);
-    dest_port = atoi(p_str);
+    if (p_str != NULL)
+        dest_port = atoi(p_str);
+    else
+    {
+        dest_port = 80;
+    }
 }
 
 void naiveconfig::print()
@@ -120,15 +101,34 @@ void naiveconfig::print()
     char dest_ip[128];
     strcpy(dest_ip, inet_ntoa(dest_server));
 
-    //注意，inet_ntoa是不可重入的。
-    printf("PROTOCOL:          %s\n"
-           "nproxy_server_ip:  %s\n"
-           "nproxy_port:       %d\n"
-           "dest_ipaddr:       %s\n"
-           "dest_port:         %d\n",
-           protocol == PROTOCOL_TCP ? "TCP" : "UDP",
-           inet_ntoa(nproxy_server),
-           proxy_port,
-           dest_ip,
-           dest_port);
+    if (hostname.length() == 0)
+    {
+        //注意，inet_ntoa是不可重入的。
+        printf("PROTOCOL:          %s\n"
+               "nproxy_server_ip:  %s\n"
+               "nproxy_port:       %d\n"
+               "dest_ipaddr:       %s\n"
+               "dest_port:         %d\n",
+               protocol_name[protocol],
+               inet_ntoa(nproxy_server),
+               proxy_port,
+               dest_ip,
+               dest_port);
+    }
+    else
+    {
+        //注意，inet_ntoa是不可重入的。
+        printf("PROTOCOL:          %s\n"
+               "nproxy_server_ip:  %s\n"
+               "nproxy_port:       %d\n"
+               "hostname:          %s\n"
+               "dest_ipaddr:       %s\n"
+               "dest_port:         %d\n",
+               protocol_name[protocol],
+               inet_ntoa(nproxy_server),
+               proxy_port,
+               hostname.c_str(),
+               dest_ip,
+               dest_port);
+    }
 }
