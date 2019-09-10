@@ -1,6 +1,9 @@
 # 检查CMake版本
 cmake_minimum_required(VERSION 3.3)
 
+#添加c++11 支持
+add_definitions(-std=c++11)
+
 # project名称
 project (naiveproxy)
 
